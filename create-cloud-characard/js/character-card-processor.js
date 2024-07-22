@@ -20,7 +20,9 @@ window.processChar = (charJson) => {
     cloudChar.first_mes = charJson.first_mes;
     cloudChar.mes_example = charJson.mes_example;
 
-    charJson.description = "<ccc-description />";
+    charJson.description = `<ccc-description />
+<ccc-api>这里填入你的API或者反代地址</ccc-api>
+<ccc-api-key>这里填入你的Key</ccc-api-key>`;
     charJson.data.description = charJson.description;
     charJson.personality = "<ccc-personality />";
     charJson.data.personality = charJson.personality;
