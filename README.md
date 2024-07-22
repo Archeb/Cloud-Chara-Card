@@ -5,10 +5,10 @@
 该方案相当于在你的反代（或者LLM API）前面多加一层反代，这个反代负责把角色卡的内容和世界书填充进去，然后这个反代由角色卡作者控制。
 
 ## 流程
-酒馆（空白卡只有卡面和作者预先设定好的可以被调整的参数，用户填入LLM API地址和token）-> cloudflare worker/vercel/hf space等saas平台 -> 填充设定和世界书触发词 -> LLM API
+酒馆（空白卡只有卡面和作者预先设定好的可以被调整的参数，用户填入LLM API地址和token）-> cloudflare worker/vercel/hf space等saas平台 -> 填充设定和世界书 -> LLM API
 
 ## 防御效果
-如果要让用户能够自己指定API Endpoint地址，prompt还是能获取到的。但是他们永远不可能获取到完整的世界书和触发机制。
+如果要让用户能够自己指定API Endpoint地址，prompt还是能获取到的。但是通过增加暗桩等方案，他们很难获取到完整的世界书和触发机制。
 
 ## 部署成本
 可以做成模板一键发布到cloudflare worker/vercel/hf space等saas平台，门槛不算特别高
