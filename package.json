@@ -12,6 +12,9 @@
     "wrangler": "^3.65.1"
   },
   "dependencies": {
+    "png-chunk-text": "^1.0.0",
+    "png-chunks-encode": "^1.0.0",
+    "png-chunks-extract": "^1.0.0",
     "uuid": "^10.0.0"
   }
 }

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="color-scheme" content="light dark" />
+		<title>云端角色卡</title>
+		<meta name="description" content="A pure HTML example, without dependencies." />
+
+		<!-- Pico.css -->
+		<link rel="stylesheet" href="pico.min.css" />
+		<script src="js/character-card-parser-browserify.js"></script>
+        <script src="js/character-card-processor.js"></script>
+	</head>
+
+	<body>
+		<!-- Header -->
+		<header class="container">
+			<hgroup>
+				<h1>云端角色卡 <span style="font-size: 0.6em; opacity: 0.7">Cloud Character Card</span></h1>
+				<p>为 SillyTavern 角色卡设计的数字权利管理 (DRM) 方案</p>
+			</hgroup>
+			<p>
+				面对愈演愈烈的未授权转载、二次分发盈利等现象，为了保护创作者的权益，我们提供此方案来对角色卡进行保护。<br />欢迎访问<a
+					href="https://github.com/Archeb/Cloud-Chara-Card"
+					>项目主页</a
+				>来提出您的想法与建议。
+			</p>
+			<p>使用本项目，即代表您知晓并同意以下几点规则</p>
+			<ul>
+				<li>您是角色卡的创作者或拥有者，或者已经获得了创作者或拥有者的授权</li>
+				<li>角色卡不违反您所在国家或地区的法律（例如，不得包含色情、暴力、仇恨、儿童色情等内容）</li>
+				<li>您以自己的名义在云端托管角色卡，本项目及其开发者不保存您的角色卡，也不对其中的内容负责</li>
+			</ul>
+			<label for="terms">
+				<input type="checkbox" role="switch" id="terms" name="terms" />
+				我同意并确认以上规则
+			</label>
+		</header>
+		<!-- ./ Header -->
+
+		<!-- Main -->
+		<main class="container" style="display: none">
+			<section id="select-char-card">
+				<h3>选择角色卡</h3>
+				<p>请使用 SillyTavern 的导出功能，导出一张 <code>.json</code> 格式的角色卡。如果有任何角色世界书(Character Lore)，请先链接。</p>
+				<form>
+					<input type="file" id="character-card-select" name="file" />
+				</form>
+			</section>
+
+			<section id="preview">
+				<h3>确认角色卡信息</h3>
+				<p>以下是角色卡中包含的信息，请确认无误。</p>
+				<div style="display: flex">
+					<img id="preview-image" src="https://via.placeholder.com/100" alt="Preview" />
+					<blockquote id="preview-info">请选择角色卡</blockquote>
+				</div>
+			</section>
+			<script>
+				document.getElementById("character-card-select").addEventListener("change", function (event) {
+					const file = event.target.files[0];
+					if (file && file.type === "image/png") {
+						const reader = new FileReader();
+						reader.onload = function (e) {
+							const imageArray = new Uint8Array(e.target.result);
+							try {
+								var charData = JSON.parse(parser.read(imageArray));
+								document.getElementById("preview-info").innerHTML = `
+                                        <div>名字：<strong>${charData.data.name}</strong></div>
+                                        <div>描述：<strong>${charData.data.description}</strong></div>
+                                        <div>首条消息：<strong>${charData.data.first_mes}</strong></div>
+                                        <div>包含世界书：<strong>${charData.data?.extensions?.world ?? "否" }</strong></div>
+                                        ${charData.data?.extensions?.world ? `<div>世界书条目数：<strong>${charData.data.character_book.entries.length}</strong></div>` : ""}
+                                `;
+								const imageUrl = URL.createObjectURL(file);
+								document.getElementById("preview-image").src = imageUrl;
+                                var {charJson, cloudChar} = processChar(charData);
+                                window.charImage = imageArray;
+                                window.charJson = charJson;
+                                window.cloudChar = cloudChar;
+							} catch (e) {
+								alert("解析角色卡失败，请检查您的角色卡是否正确。");
+                                console.error(e);
+							}
+						};
+						reader.readAsArrayBuffer(file);
+					} else {
+						alert("请选择PNG格式的文件。");
+					}
+				});
+			</script>
+			<style>
+				#preview-info {
+                    width: calc(100% - 140px);
+                    margin: 0 0 0 auto;
+				}
+				#preview-info div {
+					text-overflow: ellipsis;
+					overflow: hidden;
+					white-space: nowrap;
+				}
+				#preview-image {
+                    height: 180px;
+                    margin-right:20px;
+				}
+			</style>
+
+			<section id="Download">
+				<h3>下载角色卡</h3>
+				<p>在分发前，请完成最后的部署步骤。</p>
+				<p class="grid">
+					<button onclick="downloadPNG()">下载 PNG (带图) 角色卡</button>
+					<button onclick="downloadJSON()" class="secondary">下载 JSON 角色卡</button>
+				</p>
+			</section>
+            <script>
+                function downloadPNG() {
+                    if(window.charImage) {
+                        try {
+                            const newCharImage = parser.write(window.charImage, JSON.stringify(window.charJson));
+                            const blob = new Blob([newCharImage], {type: "image/png"});
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = window.charJson.name + ".png";
+                            a.click();
+                        } catch(e) {
+                            alert("保存角色卡失败，请查看控制台。");
+                            console.error(e);
+                        }
+                    } else {
+                        alert("请先选择角色卡。");
+                    }
+                }
+                function downloadJSON() {
+                    if(window.charJson) {
+                        const blob = new Blob([JSON.stringify(window.charJson)], {type: "application/json"});
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = window.charJson.name + ".json";
+                        a.click();
+                    } else {
+                        alert("请先选择角色卡。");
+                    }
+                }
+            </script>
+
+			<section id="deploy">
+				<h3>部署到云端</h3>
+				<p>您有多种部署方式可供选择，请点击查看具体的教程和所需资讯。</p>
+				<details>
+					<summary>托管到 CloudFlare Worker、Vercel、HuggingFace Space 等 SaaS 平台（推荐）</summary>
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque urna diam, tincidunt nec porta sed, auctor id velit. Etiam
+						venenatis nisl ut orci consequat, vitae tempus quam commodo. Nulla non mauris ipsum. Aliquam eu posuere orci. Nulla convallis lectus
+						rutrum quam hendrerit, in facilisis elit sollicitudin. Mauris pulvinar pulvinar mi, dictum tristique elit auctor quis. Maecenas ac ipsum
+						ultrices, porta turpis sit amet, congue turpis.
+					</p>
+				</details>
+				<details>
+					<summary>部署到自己的服务器（高级用户）</summary>
+					<ul>
+						<li>Vestibulum id elit quis massa interdum sodales.</li>
+						<li>Nunc quis eros vel odio pretium tincidunt nec quis neque.</li>
+						<li>Quisque sed eros non eros ornare elementum.</li>
+						<li>Cras sed libero aliquet, porta dolor quis, dapibus ipsum.</li>
+					</ul>
+				</details>
+			</section>
+			<!-- ./ Form elements-->
+		</main>
+		<!-- ./ Main -->
+
+		<!-- Footer -->
+		<footer class="container">
+			<small>Built with <a href="https://picocss.com">Pico</a> • Archeb</small>
+		</footer>
+		<!-- ./ Footer -->
+		<script>
+			let checkbox = document.getElementById("terms");
+			let main = document.querySelector("main");
+
+			checkbox.addEventListener("change", function () {
+				if (checkbox.checked) {
+					main.style.display = "block"; // 显示容器
+				} else {
+					main.style.display = "none"; // 隐藏容器
+				}
+			});
+		</script>
+	</body>
+</html>
