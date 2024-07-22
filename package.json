@@ -1,0 +1,17 @@
+{
+  "name": "cloud-characard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mozzie",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.65.1"
+  },
+  "dependencies": {
+    "uuid": "^10.0.0"
+  }
+}
