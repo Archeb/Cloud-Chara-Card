@@ -43,7 +43,7 @@ window.processChar = (charJson) => {
 window.generateDeployCode = () => {
     if (window.cloudChar) {
         cloudChar.cloudNote = document.getElementById("cloud-note").value;
-        document.getElementById("cloud-char-worker-code").innerText = "\n\nconst cloudCharaCard = " + JSON.stringify(cloudChar, null, 4) + b64DecodeUnicode(worker_template);
+        document.getElementById("cloud-char-worker-code").innerText = "const cloudCharaCard = " + JSON.stringify(cloudChar, null, 4) + "\n\n" + b64DecodeUnicode(worker_template);
     } else {
         document.getElementById("cloud-char-worker-code").innerText = "请先选择角色卡。";
     }
