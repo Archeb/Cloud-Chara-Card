@@ -14,10 +14,10 @@ const handleWorld = (worldJson) => {
 window.processChar = (charJson) => {
     var cloudChar = {};
     cloudChar.name = charJson.name;
+    cloudChar.cloudNote = "";
     cloudChar.description = charJson.description;
     cloudChar.personality = charJson.personality;
     cloudChar.scenarios = charJson.scenario;
-    cloudChar.first_mes = charJson.first_mes;
     cloudChar.mes_example = charJson.mes_example;
 
     charJson.description = `<ccc-description />
@@ -28,8 +28,6 @@ window.processChar = (charJson) => {
     charJson.data.personality = charJson.personality;
     charJson.scenarios = "<ccc-scenarios />";
     charJson.data.scenarios = charJson.scenarios;
-    charJson.first_mes = "<ccc-first_mes />";
-    charJson.data.first_mes = charJson.first_mes;
     charJson.mes_example = "<ccc-mes_example />";
     charJson.data.mes_example = charJson.mes_example;
 
@@ -42,6 +40,14 @@ window.processChar = (charJson) => {
     return {charJson, cloudChar};
 }
 
+window.generateDeployCode = () => {
+    if (window.cloudChar) {
+        cloudChar.cloudNote = document.getElementById("cloud-note").value;
+        document.getElementById("cloud-char-worker-code").innerHTML = "const cloudCharaCard = " + JSON.stringify(cloudChar, null, 4) + atob(worker_template);
+    } else {
+        document.getElementById("cloud-char-worker-code").innerHTML = "请先选择角色卡。";
+    }
+}
 const randomString = (e) => {    
     e = e || 32;
     var t = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678",

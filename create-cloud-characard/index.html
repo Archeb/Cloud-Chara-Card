@@ -10,7 +10,7 @@
 		<!-- Pico.css -->
 		<link rel="stylesheet" href="pico.min.css" />
 		<script src="js/character-card-parser-browserify.js"></script>
-        <script src="js/character-card-processor.js"></script>
+		<script src="js/character-card-processor.js"></script>
 	</head>
 
 	<body>
@@ -70,18 +70,23 @@
                                         <div>名字：<strong>${charData.data.name}</strong></div>
                                         <div>描述：<strong>${charData.data.description}</strong></div>
                                         <div>首条消息：<strong>${charData.data.first_mes}</strong></div>
-                                        <div>包含世界书：<strong>${charData.data?.extensions?.world ?? "否" }</strong></div>
-                                        ${charData.data?.extensions?.world ? `<div>世界书条目数：<strong>${charData.data.character_book.entries.length}</strong></div>` : ""}
+                                        <div>包含世界书：<strong>${charData.data?.extensions?.world ?? "否"}</strong></div>
+                                        ${
+											charData.data?.extensions?.world
+												? `<div>世界书条目数：<strong>${charData.data.character_book.entries.length}</strong></div>`
+												: ""
+										}
                                 `;
 								const imageUrl = URL.createObjectURL(file);
 								document.getElementById("preview-image").src = imageUrl;
-                                var {charJson, cloudChar} = processChar(charData);
-                                window.charImage = imageArray;
-                                window.charJson = charJson;
-                                window.cloudChar = cloudChar;
+								var { charJson, cloudChar } = processChar(charData);
+								window.charImage = imageArray;
+								window.charJson = charJson;
+								window.cloudChar = cloudChar;
+								generateDeployCode();
 							} catch (e) {
 								alert("解析角色卡失败，请检查您的角色卡是否正确。");
-                                console.error(e);
+								console.error(e);
 							}
 						};
 						reader.readAsArrayBuffer(file);
@@ -92,8 +97,8 @@
 			</script>
 			<style>
 				#preview-info {
-                    width: calc(100% - 140px);
-                    margin: 0 0 0 auto;
+					width: calc(100% - 140px);
+					margin: 0 0 0 auto;
 				}
 				#preview-info div {
 					text-overflow: ellipsis;
@@ -101,8 +106,8 @@
 					white-space: nowrap;
 				}
 				#preview-image {
-                    height: 180px;
-                    margin-right:20px;
+					height: 180px;
+					margin-right: 20px;
 				}
 			</style>
 
@@ -114,72 +119,89 @@
 					<button onclick="downloadJSON()" class="secondary">下载 JSON 角色卡</button>
 				</p>
 			</section>
-            <script>
-                function downloadPNG() {
-                    if(window.charImage) {
-                        try {
-                            const newCharImage = parser.write(window.charImage, JSON.stringify(window.charJson));
-                            const blob = new Blob([newCharImage], {type: "image/png"});
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement("a");
-                            a.href = url;
-                            a.download = window.charJson.name + ".png";
-                            a.click();
-                        } catch(e) {
-                            alert("保存角色卡失败，请查看控制台。");
-                            console.error(e);
-                        }
-                    } else {
-                        alert("请先选择角色卡。");
-                    }
-                }
-                function downloadJSON() {
-                    if(window.charJson) {
-                        const blob = new Blob([JSON.stringify(window.charJson)], {type: "application/json"});
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = window.charJson.name + ".json";
-                        a.click();
-                    } else {
-                        alert("请先选择角色卡。");
-                    }
-                }
-            </script>
+			<script>
+				function downloadPNG() {
+					if (window.charImage) {
+						try {
+							const newCharImage = parser.write(window.charImage, JSON.stringify(window.charJson));
+							const blob = new Blob([newCharImage], { type: "image/png" });
+							const url = URL.createObjectURL(blob);
+							const a = document.createElement("a");
+							a.href = url;
+							a.download = window.charJson.name + ".png";
+							a.click();
+						} catch (e) {
+							alert("保存角色卡失败，请查看控制台。");
+							console.error(e);
+						}
+					} else {
+						alert("请先选择角色卡。");
+					}
+				}
+				function downloadJSON() {
+					if (window.charJson) {
+						const blob = new Blob([JSON.stringify(window.charJson)], { type: "application/json" });
+						const url = URL.createObjectURL(blob);
+						const a = document.createElement("a");
+						a.href = url;
+						a.download = window.charJson.name + ".json";
+						a.click();
+					} else {
+						alert("请先选择角色卡。");
+					}
+				}
+			</script>
 
 			<section id="deploy">
 				<h3>部署到云端</h3>
-				<p>您有多种部署方式可供选择，请点击查看具体的教程和所需资讯。</p>
+				<p>您可以自定义一段话，显示在角色卡的网站上（支持 HTML、CSS、JS）：</p>
+				<textarea onchange="generateDeployCode()" id="cloud-note" style="width: 100%; height: 200px"></textarea>
+				<p>接下来，有多种部署方式可供选择，请点击查看具体的教程和所需资讯。</p>
 				<details>
-					<summary>托管到 CloudFlare Worker、Vercel、HuggingFace Space 等 SaaS 平台（推荐）</summary>
-					<p>
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque urna diam, tincidunt nec porta sed, auctor id velit. Etiam
-						venenatis nisl ut orci consequat, vitae tempus quam commodo. Nulla non mauris ipsum. Aliquam eu posuere orci. Nulla convallis lectus
-						rutrum quam hendrerit, in facilisis elit sollicitudin. Mauris pulvinar pulvinar mi, dictum tristique elit auctor quis. Maecenas ac ipsum
-						ultrices, porta turpis sit amet, congue turpis.
-					</p>
+					<summary><a>托管到 CloudFlare Worker（推荐）</a></summary>
+					<ol>
+						<li>访问 <a href="https://dash.cloudflare.com/sign-up">https://dash.cloudflare.com/sign-up</a> 注册一个 CloudFlare 账号，如果您已经有账号，请直接登录。</li>
+						<li>从边栏进入 “Workers 和 Pages” - 概述 页面，点击 “创建” 按钮。</li>
+						<li>点击 “创建 Worker”，然后输入你想要的名称（这将成为网站的一部分），点击部署。</li>
+						<li>您会看到一个成功提示页面。继续点击右上角的“编辑代码”，进入编辑页面。</li>
+						<li>清空编辑器中原有的代码，Ctrl + A 全选如下所有代码并复制，然后粘贴到 Worker 编辑器中，点击保存。</li>
+						<div>
+							<code contenteditable class="code-container" onbeforeinput="return false">
+								<pre class="code-box" id="cloud-char-worker-code">请先选择角色卡。</pre>
+							</code>
+						</div>
+						<li>点击右上角的 workers.dev 或者“访问”按钮，即可打开部署成功的云角色卡网站（通常是 xxx.xxx.workers.dev）</li>
+					</ol>
 				</details>
 				<details>
-					<summary>部署到自己的服务器（高级用户）</summary>
+					<summary><a>部署到自己的服务器（高级用户）</a></summary>
 					<ul>
-						<li>Vestibulum id elit quis massa interdum sodales.</li>
-						<li>Nunc quis eros vel odio pretium tincidunt nec quis neque.</li>
-						<li>Quisque sed eros non eros ornare elementum.</li>
-						<li>Cras sed libero aliquet, porta dolor quis, dapibus ipsum.</li>
+						<li>抱歉，还没写。</li>
 					</ul>
 				</details>
 			</section>
+			<style>
+
+				.code-container{
+					height: 300px;
+					overflow: auto;
+					min-width: 100%;
+					max-width: 100%;
+				}
+				.code-box{
+					width: fit-content;
+				}
+			</style>
 			<section id="deploy">
 				<h3>分发角色卡</h3>
-				<p>在完成部署后，打开部署出来的网址，就能看到角色卡的信息和使用方法。您可以将角色卡与网址一起发送给别人进行分享。</p>
-				<p>以部署完成的地址是 https://example.com/ 为例，用户只需要</p>
+				<p>在完成部署后，打开部署出来的云角色卡网站，就能看到角色卡的信息和使用方法。您可以将角色卡与网址一起发送给别人进行分享。</p>
 			</section>
 		</main>
 		<!-- ./ Main -->
 
 		<!-- Footer -->
 		<footer class="container">
-			<small>Built with <a href="https://picocss.com">Pico</a> • Archeb</small>
+			<small>Built with <a href="https://picocss.com">Pico</a> • <a href="https://github.com/Archeb/Cloud-Chara-Card">Archeb/Cloud-Chara-Card</a></small>
 		</footer>
 		<!-- ./ Footer -->
 		<script>
