@@ -43,9 +43,9 @@ window.processChar = (charJson) => {
 window.generateDeployCode = () => {
     if (window.cloudChar) {
         cloudChar.cloudNote = document.getElementById("cloud-note").value;
-        document.getElementById("cloud-char-worker-code").innerHTML = "const cloudCharaCard = " + JSON.stringify(cloudChar, null, 4) + b64DecodeUnicode(worker_template);
+        document.getElementById("cloud-char-worker-code").innerText = "const cloudCharaCard = " + JSON.stringify(cloudChar, null, 4) + b64DecodeUnicode(worker_template);
     } else {
-        document.getElementById("cloud-char-worker-code").innerHTML = "请先选择角色卡。";
+        document.getElementById("cloud-char-worker-code").innerText = "请先选择角色卡。";
     }
 }
 
