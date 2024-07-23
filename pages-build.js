@@ -8,4 +8,4 @@ var cloudCharaCardWorker = fs.readFileSync(path.resolve(__dirname, './cloud-char
 cloudCharaCardWorker = "const worker_template=\"" + Buffer.from(cloudCharaCardWorker).toString('base64') + "\";"; 
 
 // 追加写入到 create-cloud-characard/js/character-card-processor.js.js
-fs.appendFileSync(path.resolve(__dirname, './create-cloud-characard/js/character-card-processor.js.js'), cloudCharaCardWorker, 'utf-8');
+fs.appendFileSync(path.resolve(__dirname, './create-cloud-characard/js/character-card-processor.js'), cloudCharaCardWorker, 'utf-8');

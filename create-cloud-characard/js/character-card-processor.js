@@ -43,10 +43,17 @@ window.processChar = (charJson) => {
 window.generateDeployCode = () => {
     if (window.cloudChar) {
         cloudChar.cloudNote = document.getElementById("cloud-note").value;
-        document.getElementById("cloud-char-worker-code").innerHTML = "const cloudCharaCard = " + JSON.stringify(cloudChar, null, 4) + atob(worker_template);
+        document.getElementById("cloud-char-worker-code").innerHTML = "const cloudCharaCard = " + JSON.stringify(cloudChar, null, 4) + b64DecodeUnicode(worker_template);
     } else {
         document.getElementById("cloud-char-worker-code").innerHTML = "请先选择角色卡。";
     }
+}
+
+const b64DecodeUnicode = (str) => {
+    // Going backwards: from bytestream, to percent-encoding, to original string.
+    return decodeURIComponent(atob(str).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
 }
 const randomString = (e) => {    
     e = e || 32;
